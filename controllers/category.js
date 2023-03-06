@@ -44,3 +44,14 @@ exports.part_list = (req, res, next) => {
         })}
     )
 }
+
+exports.part_detail = (req, res, next) => {
+    Part.findById(req.params.id)
+        .exec(function(err, part_detail){
+            if(err){
+                return next(err)
+            }
+
+            res.render('part_detail', {part: part_detail})
+        })
+}
