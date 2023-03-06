@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><%= category.name %></title>
+    </head>
+    <body>
+        <h1>Parts</h1>
+        <ul>
+            <% category_parts.map((part)=> { %>
+                <li>
+                    <a href="<%= part.url %>">Part <%= part.name %></a>
+                </li>
+            <% }) %>
+        </ul>
+    </body>
+</html>
