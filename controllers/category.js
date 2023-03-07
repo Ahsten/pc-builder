@@ -1,6 +1,7 @@
 const Category = require("../models/category")
 const Part = require("../models/part")
 const async = require("async")
+const {body, validationResult } = require("express-validator")
 
 //Display a list of Categories
 exports.category_list = (req, res, next) => {
@@ -55,3 +56,69 @@ exports.part_detail = (req, res, next) => {
             res.render('part_detail', {part: part_detail})
         })
 }
+
+exports.part_create_get = (req, res, next) => {
+    Category.find()
+        .exec(function (err, category_list){
+            if(err) {
+                return next(err)
+            }
+
+            res.render('part_form', {title: "Create Part", categories: category_list})
+        })
+}
+
+exports.part_create_post = [
+    body("name", "Name must not be empty")
+        .trim()
+        .isLength({ min: 1 })
+        .escape(),
+    body("price", "Price must not be empty")
+        .trim()
+        .isLength({ min: 1 })
+        .escape(),
+    body("stock", "Stock must not be empty")
+        .trim()
+        .isLength({ min: 1 })
+        .escape(),
+    body("description").escape(),
+
+    (req, res, next) => {
+        const errors = validationResult(req)
+        console.log(errors)
+
+        const part = new Part({
+            name: req.body.name,
+            description: req.body.description,
+            category: req.body.category,
+            price: req.body.price,
+            stock: req.body.stock
+        })
+
+        if(!errors.isEmpty()){
+            
+            Category.find()
+            .exec(function (err, list_categories) {
+                if(err){
+                    return next(err)
+                }
+    
+                res.render('part_form', {
+                    title: "Create Part",
+                    categories: list_categories,
+                    part,
+                    errors: errors.array(),
+                })
+            })
+            return
+        }
+
+        part.save((err) => {
+            if(err) {
+                return next(err)
+            }
+
+            res.redirect(part.url)
+        })
+    }
+]
